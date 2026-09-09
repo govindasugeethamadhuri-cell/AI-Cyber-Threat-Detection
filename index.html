@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Cyber Threat Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>AI-Based Cyber Threat Detection</h1>
+        <p>Monitoring Dashboard for Unidirectional IP Traffic</p>
+    </header>
+
+    <hr>
+
+    <!-- Dashboard Cards -->
+    <section class="dashboard">
+
+        <div class="card">
+            <h3>Total Traffic</h3>
+            <p id="totalTraffic">Loading...</p>
+        </div>
+
+        <div class="card">
+            <h3>Detected Threats</h3>
+            <p id="threats">Loading...</p>
+        </div>
+
+        <div class="card">
+            <h3>Normal Traffic</h3>
+            <p id="normalTraffic">Loading...</p>
+        </div>
+
+        <div class="card">
+            <h3>Critical Threats</h3>
+            <p id="criticalThreats">Loading...</p>
+        </div>
+
+    </section>
+
+    <hr>
+<!-- Threat Summary -->
+
+<h2>📊 Threat Summary</h2>
+
+<section class="threat-summary">
+
+    <div class="summary-card">
+        <h3>PORT SCAN</h3>
+        <p id="portScan">0</p>
+    </div>
+
+    <div class="summary-card">
+        <h3>BRUTE FORCE</h3>
+        <p id="bruteForce">0</p>
+    </div>
+
+    <div class="summary-card">
+        <h3>DOS</h3>
+        <p id="dos">0</p>
+    </div>
+
+    <div class="summary-card">
+        <h3>DATA EXFILTRATION</h3>
+        <p id="dataExfiltration">0</p>
+    </div>
+
+</section>
+
+<hr>
+    <!-- Alert Section -->
+    <h2>🚨 Threat Alerts</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Source IP</th>
+                <th>Destination IP</th>
+                <th>Protocol</th>
+                <th>Port</th>
+                <th>Threat</th>
+                <th>Confidence</th>
+                <th>Risk Level</th>
+                <th>Evidence</th>
+            </tr>
+        </thead>
+
+        <tbody id="alertTable">
+        </tbody>
+
+    </table>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        fetch("http://127.0.0.1:8000/alerts")
+
+            .then(response => response.json())
+
+            .then(data => {
+                // Threat type counts
+            
+                let portScan = 0;
+                let bruteForce = 0;
+                let dos = 0;
+                let dataExfiltration = 0;
+
+                data.forEach(item => {
+
+                    if (item.threat === "PORT_SCAN") {
+                        portScan++;
+                    }
+
+                    if (item.threat === "BRUTE_FORCE") {
+                        bruteForce++;
+                    }
+
+                    if (item.threat === "DOS") {
+                        dos++;
+                    }
+
+                    if (item.threat === "DATA_EXFILTRATION") {
+                        dataExfiltration++;
+                    }
+
+                });
+
+                // Total traffic
+                let total = data.length;
+
+                // Threats
+                let threats = data.filter(
+                    item => item.threat !== "NORMAL"
+                ).length;
+
+                // Normal traffic
+                let normal = data.filter(
+                    item => item.threat === "NORMAL"
+                ).length;
+
+                // Critical threats
+                let critical = data.filter(
+                    item => item.risk_level === "CRITICAL"
+                ).length;
+
+
+                // Display numbers
+                document.getElementById("totalTraffic").innerText = total;
+
+                document.getElementById("threats").innerText = threats;
+
+                document.getElementById("normalTraffic").innerText = normal;
+
+                document.getElementById("criticalThreats").innerText = critical;
+                // Display threat summary
+
+                document.getElementById("portScan").innerText = portScan;
+
+                document.getElementById("bruteForce").innerText = bruteForce;
+
+                document.getElementById("dos").innerText = dos;
+
+                document.getElementById("dataExfiltration").innerText = dataExfiltration;
+
+
+                // Get table
+                let table = document.getElementById("alertTable");
+
+
+                // Add traffic records
+               data
+                   .filter(item => item.threat !== "NORMAL")
+                   .forEach(item => {
+                    
+                    let row = `
+                        <tr>
+
+                            <td>${item.source_ip}</td>
+
+                            <td>${item.destination_ip}</td>
+
+                            <td>${item.protocol}</td>
+
+                            <td>${item.destination_port}</td>
+
+                            <td class="threat-${item.threat.toLowerCase()}">
+                                ${item.threat}
+                            </td>
+
+                            <td>${item.confidence}%</td>
+
+                            <td class="risk-${item.risk_level.toLowerCase()}">
+                                ${item.risk_level}
+                            </td>
+
+                            <td>${item.evidence}</td>
+
+                        </tr>
+                    `;
+
+                table.innerHTML += row;
+
+            });
+
+            })
+
+            .catch(error => {
+
+                console.log("Error:", error);
+
+            });
+
+    </script>
+
+</body>
+
+</html>
