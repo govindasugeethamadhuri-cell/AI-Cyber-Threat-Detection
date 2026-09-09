@@ -18,8 +18,8 @@ app.add_middleware(
 
 
 # Load AI model
-model = joblib.load("ml/model.pkl")
-encoder = joblib.load("ml/label_encoder.pkl")
+model = joblib.load("model.pkl")
+encoder = joblib.load("label_encoder.pkl")
 
 
 # Risk levels
@@ -53,7 +53,7 @@ def home():
 def get_alerts():
 
     # Load traffic dataset
-    df = pd.read_csv("data/traffic.csv")
+    df = pd.read_csv("traffic.csv")
 
 
     # Features used by AI
